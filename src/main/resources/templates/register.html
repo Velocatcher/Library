@@ -2,45 +2,79 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 3rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input[type="text"], input[type="password"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-<h1>Registration Form</h1>
+    <div class="container">
+        <h1>Registration Form</h1>
+        
+        <!-- Показ ошибок, если они возникли -->
+        <div th:if="${errorMessage}" style="color: red;">
+            <p th:text="${errorMessage}"></p>
+        </div>
 
-<!-- Показ ошибок, если они возникли -->
-<div th:if="${errorMessage}" style="color: red;">
-    <p th:text="${errorMessage}"></p>
-</div>
+        <!-- Показ сообщения об успешной регистрации -->
+        <div th:if="${successMessage}" style="color: green;">
+            <p th:text="${successMessage}"></p>
+        </div>
 
-<!-- Показ сообщения об успешной регистрации -->
-<div th:if="${successMessage}" style="color: green;">
-    <p th:text="${successMessage}"></p>
-</div>
-
-<form action="/register" method="post">
-    <div>
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" placeholder="Enter your username" required
-               th:value="${user.username}">
+        <form action="/register" method="post">
+            <input type="text" id="username" name="username" placeholder="Enter your username" required th:value="${user.username}">
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <select id="role" name="role">
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+            <button type="submit">Register</button>
+        </form>
     </div>
-
-    <div>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" placeholder="Enter your password" required>
-    </div>
-
-    <div>
-        <label for="role">Role:</label>
-        <select id="role" name="role">
-            <option value="USER">User</option>
-            <option value="ADMIN">Admin</option>
-        </select>
-    </div>
-
-    <div>
-        <button type="submit">Register</button>
-    </div>
-</form>
-
-<p>Already have an account? <a href="/login">Login here</a></p>
 </body>
 </html>

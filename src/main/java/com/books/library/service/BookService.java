@@ -1,4 +1,3 @@
-
 package com.books.library.service;
 
 import com.books.library.model.Book;
@@ -14,7 +13,7 @@ public class BookService {
     @Autowired
     private BookRepository bookRepository;
 
-    public List<Book> findAll() {
+    public List<Book> getAllBooks() {
         return bookRepository.findAll();
     }
 
@@ -22,8 +21,11 @@ public class BookService {
         bookRepository.save(book);
     }
 
-    public void deleteBook(Long id) {
-        bookRepository.deleteById(id);
+    public void updateBook(Book book) {
+        bookRepository.save(book);
+    }
+
+    public void deleteBook(Long bookId) {
+        bookRepository.deleteById(bookId);
     }
 }
-    

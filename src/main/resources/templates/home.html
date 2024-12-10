@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+</head>
+<body>
+<h1>Welcome to Home</h1>
+<h2>Available Books</h2>
+
+<table>
+    <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Action</th>
+    </tr>
+    <tr th:each="book : ${books}">
+        <td th:text="${book.title}"></td>
+        <td th:text="${book.author}"></td>
+        <td>
+            <form th:action="@{/orderBook}" method="post">
+                <input type="hidden" name="bookId" th:value="${book.id}"/>
+                <input type="hidden" name="userId" th:value="${#authentication.name}"/>
+                <button type="submit">Order</button>
+            </form>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

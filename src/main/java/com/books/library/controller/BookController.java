@@ -1,4 +1,3 @@
-
 package com.books.library.controller;
 
 import com.books.library.model.Book;
@@ -17,7 +16,8 @@ public class BookController {
 
     @GetMapping
     public String getBooks(Model model) {
-        model.addAttribute("books", bookService.findAll());
+        // Исправление: заменён bookService.findAll() на bookService.getAllBooks()
+        model.addAttribute("books", bookService.getAllBooks());
         return "book-list";
     }
 
@@ -33,4 +33,3 @@ public class BookController {
         return "redirect:/books";
     }
 }
-    
