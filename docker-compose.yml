@@ -1,8 +1,7 @@
-
-version: '3'
 services:
   mysql:
     build: .
+    restart: always
     container_name: mysql_library
     ports:
       - "3306:3306"
