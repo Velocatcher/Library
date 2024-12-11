@@ -20,18 +20,33 @@ public class UserController {
         model.addAttribute("user", new User());
         return "register";
     }
-
     @PostMapping("/register")
-    public String registerUser(User user, Model model) {
+    public String registerUser(@ModelAttribute User user, Model model) {
         try {
+            if ("admin".equals(user.getUsername())) {
+                throw new IllegalArgumentException("The username 'admin' is reserved.");
+            }
             userService.saveUser(user);
-            model.addAttribute("successMessage", "User registered successfully!");
-            return "redirect:/home";
-        } catch (Exception e) {
-            model.addAttribute("errorMessage", "Error during registration: " + e.getMessage());
+            return "redirect:/home"; // После успешной регистрации отправляем на главную страницу пользователя
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", e.getMessage());
             return "register";
         }
     }
+
+
+
+//    @PostMapping("/register")
+//    public String registerUser(User user, Model model) {
+//        try {
+//            userService.saveUser(user);
+//            model.addAttribute("successMessage", "User registered successfully!");
+//            return "redirect:/home";
+//        } catch (Exception e) {
+//            model.addAttribute("errorMessage", "Error during registration: " + e.getMessage());
+//            return "register";
+//        }
+//    }
 
     @GetMapping("/login")
     public String showLoginPage() {

@@ -5,16 +5,24 @@ import com.books.library.model.User;
 import com.books.library.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Component
 public class UserService {
+
+//    @Autowired
+//    private UserRepository userRepository;
 
     @Autowired
     private UserRepository userRepository;
 
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
@@ -26,13 +34,26 @@ public class UserService {
             throw new IllegalArgumentException("User with this username already exists.");
         }
 
-        if (user.getRole() == null) {
-            user.setRole(Role.USER); // Роль по умолчанию — USER
+        if (!"admin".equals(user.getUsername())) {
+            user.setRole(Role.USER);
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // Шифрование пароля
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
+
+//    public void saveUser(User user) {
+//        if (userRepository.existsByUsername(user.getUsername())) {
+//            throw new IllegalArgumentException("User with this username already exists.");
+//        }
+//
+//        if (user.getRole() == null) {
+//            user.setRole(Role.USER); // Роль по умолчанию — USER
+//        }
+//
+//        user.setPassword(passwordEncoder.encode(user.getPassword())); // Шифрование пароля
+//        userRepository.save(user);
+//    }
 
     /**
      * Получает пользователя по его id.
