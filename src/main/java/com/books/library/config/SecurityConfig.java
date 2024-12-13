@@ -1,31 +1,22 @@
 package com.books.library.config;
 
-import com.books.library.model.User;
 import com.books.library.service.UserService;
-import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
 
-    @Autowired
-    private UserService userService; // Внедрение зависимости UserService
+    private final UserService userService;
 
-    @PostConstruct
-    public void init() {
-        if (!userService.existsByUsername("admin")) {
-            User adminUser = new User();
-            adminUser.setUsername("admin");
-            adminUser.setPassword(passwordEncoder().encode("admin"));
-            adminUser.setRole(Role.valueOf("ROLE_ADMIN"));
-            userService.saveUser(adminUser);
-        }
+    public SecurityConfig(UserService userService) {
+        this.userService = userService;
     }
 
     @Bean
@@ -36,100 +27,26 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/index", "/register", "/login", "/css/**", "/js/**", "/images/**").permitAll()
+                .csrf(AbstractHttpConfigurer::disable) // Обновлено использование метода csrf
+                .authorizeHttpRequests((requests) -> requests
+                        .requestMatchers("/", "/index", "/register", "/css/**", "/js/**").permitAll() // Доступ без авторизации
                         .requestMatchers("/home").hasRole("USER")
                         .requestMatchers("/admin").hasRole("ADMIN")
-                        .anyRequest().authenticated()
+                        .anyRequest().authenticated() // Все остальные запросы требуют авторизации
                 )
-                .formLogin(form -> form
+                .formLogin((form) -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/home", true)
+                        .successHandler(new CustomAuthenticationSuccessHandler()) // Указан кастомный обработчик
                         .permitAll()
                 )
-                .logout(LogoutConfigurer::permitAll);
+                .logout((logout) -> logout.permitAll());
 
         return http.build();
     }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
 }
 
-
-
-
-
-//package com.books.library.config;
-//
-//import com.books.library.service.UserService;
-//import jakarta.annotation.PostConstruct;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
-//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-//import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
-//import org.springframework.security.core.userdetails.User;
-//import org.springframework.security.core.userdetails.UserDetails;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-//import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-//import org.springframework.security.web.SecurityFilterChain;
-//
-//@Configuration
-//public class SecurityConfig {
-//
-//    @Autowired
-//    private UserService userService; // Внедрение зависимости UserService
-//    @PostConstruct
-//    public void init() {
-//        if (!userService.existsByUsername("admin")) {
-//            User adminUser = new User();
-//            adminUser.setUsername("admin");
-//            adminUser.setPassword(passwordEncoder().encode("admin"));
-//            adminUser.setRole(Role.ADMIN);
-//            userService.saveUser(adminUser);
-//        }
-//    }
-//
-//
-//
-//    @Bean
-//    public BCryptPasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//               http
-//                .authorizeHttpRequests(authorize -> authorize
-//                        .requestMatchers("/", "/index", "/register", "/login", "/css/**", "/js/**", "/images/**").permitAll() // Делаем эти страницы доступными для всех
-//                        .requestMatchers("/home").hasRole("USER")
-//                        .requestMatchers("/admin").hasRole("ADMIN")
-//                        .anyRequest().authenticated()
-//                )
-//                .formLogin((form) -> form
-//                        .loginPage("/login")
-//                        .successHandler(new CustomAuthenticationSuccessHandler())
-//                        .permitAll()
-//                )
-//                .logout(LogoutConfigurer::permitAll);
-//
-//        return http.build();
-//    }
-//
-//    @Bean
-//    public InMemoryUserDetailsManager userDetailsService() {
-//        UserDetails user = User.withDefaultPasswordEncoder()
-//                .username("user")
-//                .password("password")
-//                .roles("USER")
-//                .build();
-//
-//        UserDetails admin = User.withDefaultPasswordEncoder()
-//                .username("admin")
-//                .password("password")
-//                .roles("ADMIN")
-//                .build();
-//
-//        return new InMemoryUserDetailsManager(user, admin);
-//    }
-//}
-//
-//
-//

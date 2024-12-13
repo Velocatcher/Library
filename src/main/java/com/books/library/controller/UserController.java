@@ -20,43 +20,24 @@ public class UserController {
         model.addAttribute("user", new User());
         return "register";
     }
+
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute User user, Model model) {
+    public String registerUser(User user, Model model) {
         try {
-            if ("admin".equals(user.getUsername())) {
-                throw new IllegalArgumentException("The username 'admin' is reserved.");
-            }
             userService.saveUser(user);
-            return "redirect:/home"; // После успешной регистрации отправляем на главную страницу пользователя
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("successMessage", "User registered successfully!");
+            return "redirect:/home";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Error during registration: " + e.getMessage());
             return "register";
         }
     }
-
-
-
-//    @PostMapping("/register")
-//    public String registerUser(User user, Model model) {
-//        try {
-//            userService.saveUser(user);
-//            model.addAttribute("successMessage", "User registered successfully!");
-//            return "redirect:/home";
-//        } catch (Exception e) {
-//            model.addAttribute("errorMessage", "Error during registration: " + e.getMessage());
-//            return "register";
-//        }
-//    }
 
     @GetMapping("/login")
     public String showLoginPage() {
         return "login";
     }
 
-//    @GetMapping("/home")
-//    public String showHomePage() {
-//        return "home";
-//    }
 
 //    @GetMapping("/admin")
 //    public String showAdminPage() {
@@ -89,92 +70,3 @@ public class UserController {
     }
 }
 
-
-
-
-//package com.books.library.controller;
-//
-//import com.books.library.model.User;
-//import com.books.library.service.UserService;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.stereotype.Controller;
-//import org.springframework.ui.Model;
-//import org.springframework.web.bind.annotation.*;
-//
-//import java.util.List;
-//
-//@Controller
-//public class UserController {
-//
-//    @Autowired
-//    private UserService userService;
-//
-//    /**
-//     * Отображает страницу регистрации.
-//     */
-//    @GetMapping("/register")
-//    public String showRegistrationForm(Model model) {
-//        model.addAttribute("user", new User()); // передаем пустого пользователя на форму
-//        return "register";
-//    }
-//
-//    /**
-//     * Обрабатывает форму регистрации нового пользователя.
-//     */
-//    @PostMapping("/register")
-//    public String registerUser(User user, Model model) {
-//        try {
-//            userService.saveUser(user);
-//            model.addAttribute("successMessage", "User registered successfully!");
-//            return "redirect:/home";
-//        } catch (Exception e) {
-//            model.addAttribute("errorMessage", "Error during registration: " + e.getMessage());
-//            return "register";
-//        }
-//    }
-//
-//    /**
-//     * Отображает страницу авторизации.
-//     */
-//    @GetMapping("/login")
-//    public String showLoginPage() {
-//        return "login";
-//    }
-//
-//    /**
-//     * Получает информацию о пользователе по ID.
-//     */
-//    @GetMapping("/user/{id}")
-//    @ResponseBody
-//    public User getUserById(@PathVariable Long id) {
-//        return userService.getUserById(id);
-//    }
-//
-//    /**
-//     * Получает список всех пользователей.
-//     */
-//    @GetMapping("/users")
-//    @ResponseBody
-//    public List<User> getAllUsers() {
-//        return userService.getAllUsers();
-//    }
-//
-//    /**
-//     * Обновляет информацию о пользователе по ID.
-//     */
-//    @PutMapping("/user/{id}")
-//    @ResponseBody
-//    public User updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
-//        return userService.updateUser(id, updatedUser);
-//    }
-//
-//    /**
-//     * Удаляет пользователя по его ID.
-//     */
-//    @DeleteMapping("/user/{id}")
-//    @ResponseBody
-//    public String deleteUser(@PathVariable Long id) {
-//        userService.deleteUser(id);
-//        return "User with ID " + id + " has been deleted successfully";
-//    }
-//}
