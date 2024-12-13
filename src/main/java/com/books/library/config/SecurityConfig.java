@@ -13,12 +13,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
-//    private final UserService userService;
-//
-//    public SecurityConfig(UserService userService) {
-//        this.userService = userService;
-//    }
-
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -35,9 +29,14 @@ public class SecurityConfig {
                         .anyRequest().authenticated() // Все остальные запросы требуют авторизации
                 )
                 .formLogin((form) -> form
-                        .loginPage("/login")
-                        .successHandler(new CustomAuthenticationSuccessHandler()) // Указан кастомный обработчик
-                        .permitAll()
+                                .loginPage("/login")
+                                .defaultSuccessUrl("/home", true) // Перенаправление на /home после входа
+                                .successHandler(new CustomAuthenticationSuccessHandler())
+                                .permitAll()
+//                .formLogin((form) -> form
+//                        .loginPage("/login")
+//                        .successHandler(new CustomAuthenticationSuccessHandler()) // Указан кастомный обработчик
+//                        .permitAll()
                 )
                 .logout((logout) -> logout.permitAll());
 
