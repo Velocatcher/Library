@@ -13,11 +13,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
-    private final UserService userService;
-
-    public SecurityConfig(UserService userService) {
-        this.userService = userService;
-    }
+//    private final UserService userService;
+//
+//    public SecurityConfig(UserService userService) {
+//        this.userService = userService;
+//    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
