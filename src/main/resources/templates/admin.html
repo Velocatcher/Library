@@ -1,35 +1,203 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
-    <title>Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 2rem auto;
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 2rem;
+        }
+
+        .form-container input, .form-container textarea, .form-container button {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        .form-container button {
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .form-container button:hover {
+            background-color: #555;
+        }
+
+        .book-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .book-table th, .book-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .book-table th {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .actions button {
+            padding: 5px 10px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .edit-btn {
+            background-color: #4CAF50;
+            color: #fff;
+        }
+
+        .delete-btn {
+            background-color: #F44336;
+            color: #fff;
+        }
+
+        .logout-btn {
+            background-color: #555;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 10px;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
-<h1>Admin Dashboard</h1>
 
-<h2>Add Book</h2>
-<form th:action="@{/addBook}" method="post">
-    <input type="text" name="title" placeholder="Title"/>
-    <input type="text" name="author" placeholder="Author"/>
-    <button type="submit">Add Book</button>
-</form>
+<header>
+    <h1>Admin Dashboard</h1>
+</header>
 
-<h2>Available Books</h2>
-<table>
-    <tr>
-        <th>Title</th>
-        <th>Author</th>
-        <th>Actions</th>
-    </tr>
-    <tr th:each="book : ${books}">
-        <td th:text="${book.title}"></td>
-        <td th:text="${book.author}"></td>
-        <td>
-            <form th:action="@{/deleteBook}" method="post">
-                <input type="hidden" name="bookId" th:value="${book.id}"/>
-                <button type="submit">Delete</button>
-            </form>
-        </td>
-    </tr>
-</table>
+<div class="container">
+
+    <h2>Add New Book</h2>
+    <form class="form-container" id="addBookForm">
+        <input type="text" id="bookTitle" placeholder="Book Title" required>
+        <input type="text" id="bookAuthor" placeholder="Author" required>
+        <textarea id="bookDescription" placeholder="Book Description" required></textarea>
+        <button type="submit">Add Book</button>
+    </form>
+
+    <h2>Manage Books</h2>
+    <table class="book-table">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="bookList">
+        <!-- Book rows will be appended here -->
+        </tbody>
+    </table>
+
+    <a class="logout-btn" href="/logout">Logout</a>
+</div>
+
+<script>
+    document.getElementById('addBookForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const title = document.getElementById('bookTitle').value;
+        const author = document.getElementById('bookAuthor').value;
+        const description = document.getElementById('bookDescription').value;
+
+        fetch('/addBook', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title: title,
+                author: author,
+                description: description
+            })
+        }).then(response => response.json())
+          .then(data => {
+              alert('Book added successfully!');
+              location.reload();
+          }).catch(error => console.error('Error:', error));
+    });
+
+    function deleteBook(bookId) {
+        fetch('/deleteBook', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({ bookId: bookId })
+        }).then(response => response.json())
+          .then(data => {
+              alert('Book deleted successfully!');
+              location.reload();
+          }).catch(error => console.error('Error:', error));
+    }
+
+    function renderBookTable(books) {
+        const bookList = document.getElementById('bookList');
+        bookList.innerHTML = '';
+
+        books.forEach(book => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${book.title}</td>
+                <td>${book.author}</td>
+                <td>${book.description}</td>
+                <td class="actions">
+                    <button class="edit-btn">Edit</button>
+                    <button class="delete-btn" onclick="deleteBook(${book.id})">Delete</button>
+                </td>
+            `;
+            bookList.appendChild(row);
+        });
+    }
+
+    window.onload = function() {
+        fetch('/admin')
+            .then(response => response.json())
+            .then(data => renderBookTable(data.books))
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+
 </body>
 </html>
