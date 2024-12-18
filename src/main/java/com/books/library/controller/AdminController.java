@@ -3,40 +3,68 @@ package com.books.library.controller;
 import com.books.library.model.Book;
 import com.books.library.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Controller
+@RequestMapping("/admin")
 public class AdminController {
 
     @Autowired
     private BookService bookService;
 
-    @GetMapping("/admin")
-    public String showAdminPage(Model model) {
-        List<Book> books = bookService.getAllBooks();
-        model.addAttribute("books", books);
-        return "admin";
+    /**
+     * Маршрут для отображения страницы admin.html
+     */
+    @GetMapping
+    public String showAdminPage() {
+        return "admin"; // без .html, Spring ищет файл admin.html в папке /templates/
     }
 
-    @PostMapping("/addBook")
-    public String addBook(Book book) {
-        bookService.saveBook(book);
-        return "redirect:/admin";
+    /**
+     * Получение списка всех книг
+     * Эндпоинт: /admin/books [GET]
+     */
+    @GetMapping("/books")
+    @ResponseBody
+    public List<Book> getAllBooks() {
+        return bookService.getAllBooks();
     }
 
-    @PostMapping("/editBook")
-    public String editBook(Book book) {
-        bookService.updateBook(book);
-        return "redirect:/admin";
+    /**
+     * Добавление новой книги
+     * Эндпоинт: /admin/books/add [POST]
+     */
+    @PostMapping("/books/add")
+    @ResponseBody
+    public Book addBook(@RequestBody Book book) {
+        return bookService.saveBook(book);
     }
 
-    @PostMapping("/deleteBook")
-    public String deleteBook(@RequestParam Long bookId) {
-        bookService.deleteBook(bookId);
-        return "redirect:/admin";
+    /**
+     * Удаление книги по ID
+     * Эндпоинт: /admin/books/delete/{id} [DELETE]
+     */
+    @DeleteMapping("/books/delete/{id}")
+    public ResponseEntity<String> deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
+        return ResponseEntity.ok("Книга успешно удалена");
+    }
+
+    /**
+     * Обновление информации о книге
+     * Эндпоинт: /admin/books/update/{id} [PUT]
+     */
+    @PutMapping("/books/update/{id}")
+    public ResponseEntity<?> updateBook(@PathVariable Long id, @RequestBody Book updatedBook) {
+        try {
+            Book savedBook = bookService.updateBook(id, updatedBook);
+            return ResponseEntity.ok(savedBook);
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body("Ошибка: Книга не найдена");
+        }
     }
 }

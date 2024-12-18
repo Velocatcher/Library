@@ -13,6 +13,40 @@ import java.time.LocalDate;
 @Table(name = "book_order") // Указываем явное имя таблицы
 public class BookOrder {
 
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY) // Устанавливаем FetchType.LAZY для оптимизации запросов
+    @JoinColumn(name = "book_id", nullable = false)
+    private Book book;
+
+    @ManyToOne(fetch = FetchType.LAZY) // Устанавливаем FetchType.LAZY для оптимизации запросов
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(name = "order_date", nullable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate orderDate;
+
+    @Column(name = "due_date", nullable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate dueDate;
+
+    @Column(name = "returned", nullable = false)
+    private boolean returned;
+
+
+    public LocalDate getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(LocalDate orderDate) {
+        this.orderDate = orderDate;
+    }
+
     public Long getId() {
         return id;
     }
@@ -37,10 +71,6 @@ public class BookOrder {
         this.user = user;
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
 
     public boolean isReturned() {
         return returned;
@@ -50,8 +80,6 @@ public class BookOrder {
         this.returned = returned;
     }
 
-    @Column(name = "returned", nullable = false)
-    private boolean returned;
 
 
     public LocalDate getDueDate() {
@@ -62,17 +90,6 @@ public class BookOrder {
         this.dueDate = dueDate;
     }
 
-    @Column(name = "due_date", nullable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate dueDate;
-
-    @ManyToOne(fetch = FetchType.LAZY) // Устанавливаем FetchType.LAZY для оптимизации запросов
-    @JoinColumn(name = "book_id", nullable = false)
-    private Book book;
-
-    @ManyToOne(fetch = FetchType.LAZY) // Устанавливаем FetchType.LAZY для оптимизации запросов
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 
     // Конструктор без параметров (по умолчанию)
     public BookOrder() {}

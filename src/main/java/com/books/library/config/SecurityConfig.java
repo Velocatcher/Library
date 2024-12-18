@@ -1,6 +1,5 @@
 package com.books.library.config;
 
-import com.books.library.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,20 +24,26 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/", "/index", "/register", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/home").hasRole("USER")
+                        .requestMatchers("/order/home", "/order/orderBook", "/order/returnBook", "/order/extendLoan").hasRole("USER")
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
                         .loginPage("/login")
-                        .successHandler(customAuthenticationSuccessHandler()) // Указываем кастомный обработчик
+                        .successHandler(customAuthenticationSuccessHandler()) // Указан кастомный обработчик
                         .permitAll()
                 )
-                .logout((logout) -> logout.permitAll());
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/index") // Убедитесь, что путь к index корректный
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                );
 
         return http.build();
     }
@@ -59,8 +64,10 @@ public class SecurityConfig {
                     try {
                         if (authority.getAuthority().equals("ROLE_ADMIN")) {
                             response.sendRedirect("/admin");
+                            return;
                         } else if (authority.getAuthority().equals("ROLE_USER")) {
-                            response.sendRedirect("/home");
+                            response.sendRedirect("/order/home");
+                            return;
                         }
                     } catch (IOException e) {
                         e.printStackTrace();

@@ -2,13 +2,13 @@
 package com.books.library.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@Table(name = "books")
 public class Book {
     public Long getId() {
         return id;
@@ -50,6 +50,18 @@ public class Book {
         this.copiesAvailable = copiesAvailable;
     }
 
+    public Book() {
+    }
+
+    public Book(String title, String author, String description, int copiesAvailable, boolean available) {
+
+        this.title = title;
+        this.author = author;
+        this.description = description;
+        this.copiesAvailable = copiesAvailable;
+        this.available = available;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -58,5 +70,6 @@ public class Book {
     private String author;
     private String description;
     private int copiesAvailable;
+    private boolean available; // поле для отслеживания доступности книги
 }
     

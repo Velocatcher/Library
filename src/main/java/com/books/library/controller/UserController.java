@@ -43,7 +43,7 @@ public class UserController {
             SecurityContextHolder.getContext().setAuthentication(authenticationManager.authenticate(authToken));
 
             model.addAttribute("successMessage", "User registered successfully!");
-            return "redirect:/home";
+            return "redirect:/order/home";
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Error during registration: " + e.getMessage());
             return "register";
