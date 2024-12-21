@@ -33,16 +33,45 @@ public class OrderController {
 
     // Главная страница пользователя
     @GetMapping("/home")
-    public String homePage(@AuthenticationPrincipal User user, Model model) {
+    public String homePage(Model model) {
+        // Получаем текущего авторизованного пользователя
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("Пользователь должен быть авторизован.");
+        }
+
+        org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) authentication.getPrincipal();
+        User user = userService.findByUsername(principal.getUsername());
+        if (user == null) {
+            throw new IllegalStateException("Пользователь не найден в системе.");
+        }
+
+        // Получение заказов и доступных книг
         List<BookOrder> userOrders = orderService.getOrdersByUser(user);
         List<Book> availableBooks = bookService.getAllAvailableBooks();
-        // Логируем размер списка availableBooks
+
+        // Логирование
         System.out.println("Количество доступных книг: " + availableBooks.size());
 
         model.addAttribute("userOrders", userOrders);
         model.addAttribute("availableBooks", availableBooks);
         return "home";
     }
+
+//    @GetMapping("/home")
+//    public String homePage(@AuthenticationPrincipal User user, Model model) {
+////        if (user == null) {
+////            throw new IllegalStateException("Пользователь должен быть авторизован.");
+////        }
+//        List<BookOrder> userOrders = orderService.getOrdersByUser(user);
+//        List<Book> availableBooks = bookService.getAllAvailableBooks();
+//        // Логируем размер списка availableBooks
+//        System.out.println("Количество доступных книг: " + availableBooks.size());
+//
+//        model.addAttribute("userOrders", userOrders);
+//        model.addAttribute("availableBooks", availableBooks);
+//        return "home";
+//    }
 
     // Получение списка всех заказов пользователя
     @GetMapping("/user-orders")

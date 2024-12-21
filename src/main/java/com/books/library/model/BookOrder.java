@@ -3,6 +3,7 @@ package com.books.library.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 
 import java.time.LocalDate;
@@ -19,23 +20,32 @@ public class BookOrder {
 //    @Column(name = "id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Устанавливаем FetchType.LAZY для оптимизации запросов
-    @JoinColumn(name = "book_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "book_id", referencedColumnName = "id", nullable = false) // Ссылаемся на таблицу book
     private Book book;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Устанавливаем FetchType.LAZY для оптимизации запросов
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
+//    @ManyToOne(fetch = FetchType.LAZY) // Устанавливаем FetchType.LAZY для оптимизации запросов
+//    @JoinColumn(name = "book_id", nullable = false)
+//    private Book book;
+//
+//    @ManyToOne(fetch = FetchType.LAZY) // Устанавливаем FetchType.LAZY для оптимизации запросов
+//    @JoinColumn(name = "user_id", nullable = false)
+//    private User user;
+
 //    @Column(name = "order_date", nullable = false)
-//    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate orderDate;
 
 //    @Column(name = "due_date", nullable = false)
-//    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dueDate;
 
 //    @Column(name = "returned", nullable = false)
+    @Column(nullable = false)
     private boolean returned;
 
 

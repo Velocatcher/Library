@@ -26,9 +26,9 @@ public class AdminController {
 
     /**
      * Получение списка всех книг
-     * Эндпоинт: /admin/books [GET]
+     * Эндпоинт: /admin/book [GET]
      */
-    @GetMapping("/books")
+    @GetMapping("/book")
     @ResponseBody
     public List<Book> getAllBooks() {
         return bookService.getAllBooks();
@@ -36,9 +36,9 @@ public class AdminController {
 
     /**
      * Добавление новой книги
-     * Эндпоинт: /admin/books/add [POST]
+     * Эндпоинт: /admin/book/add [POST]
      */
-    @PostMapping("/books/add")
+    @PostMapping("/book/add")
     @ResponseBody
     public Book addBook(@RequestBody Book book) {
         return bookService.saveBook(book);
@@ -46,9 +46,9 @@ public class AdminController {
 
     /**
      * Удаление книги по ID
-     * Эндпоинт: /admin/books/delete/{id} [DELETE]
+     * Эндпоинт: /admin/book/delete/{id} [DELETE]
      */
-    @DeleteMapping("/books/delete/{id}")
+    @DeleteMapping("/book/delete/{id}")
     public ResponseEntity<String> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
         return ResponseEntity.ok("Книга успешно удалена");
@@ -56,9 +56,9 @@ public class AdminController {
 
     /**
      * Обновление информации о книге
-     * Эндпоинт: /admin/books/update/{id} [PUT]
+     * Эндпоинт: /admin/book/update/{id} [PUT]
      */
-    @PutMapping("/books/update/{id}")
+    @PutMapping("/book/update/{id}")
     public ResponseEntity<?> updateBook(@PathVariable Long id, @RequestBody Book updatedBook) {
         try {
             Book savedBook = bookService.updateBook(id, updatedBook);

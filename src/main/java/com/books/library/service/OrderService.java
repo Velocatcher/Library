@@ -30,8 +30,23 @@ public class OrderService {
      * @return Список заказов пользователя.
      */
     public List<BookOrder> getOrdersByUser(User user) {
-        return orderRepository.findByUser(user);
+        // Получаем список заказов пользователя
+        if (user == null) {
+            throw new IllegalArgumentException("Пользователь не может быть null.");
+        }
+
+        List<BookOrder> orders = orderRepository.findByUser(user);
+
+        // Логируем размер списка и детали пользователя
+        if (orders != null) {
+            System.out.println("Найдено заказов для пользователя " + user.getUsername() + ": " + orders.size());
+        } else {
+            System.out.println("Для пользователя " + user.getUsername() + " не найдено заказов.");
+        }
+
+        return orders; // Возвращаем список
     }
+
 
     /**
      * Метод для создания нового заказа на книгу.
@@ -53,6 +68,8 @@ public class OrderService {
         // Логирование
         System.out.println("Создание заказа для пользователя: " + user.getUsername() + ", Книга: " + book.getTitle() + book.getId());
         orderRepository.save(order); // Сохраняем заказ в базе данных
+        book.setAvailable(false);
+        bookRepository.save(book);
     }
 
     /**

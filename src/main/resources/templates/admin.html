@@ -69,6 +69,7 @@
         .scrollable {
             height: 250px;
             overflow-y: auto;
+            position: relative;
         }
 
         h2 {
@@ -79,9 +80,12 @@
         }
 
         .table-header th {
+            position: sticky;
+            top: 0;
             background-color: #4b4b4b;
             color: white;
             padding: 15px;
+            z-index: 1;
         }
 
         form {
@@ -142,7 +146,7 @@
 
         // Загрузка списка книг
         function loadBooks() {
-            fetch('/books')
+            fetch('/book')
                 .then(response => response.json())
                 .then(data => {
                     booksTable.innerHTML = '';
@@ -169,7 +173,7 @@
             const author = document.getElementById('author').value;
             const description = document.getElementById('description').value;
 
-            fetch('/books/add', {
+            fetch('/book/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, author, description })
@@ -182,7 +186,7 @@
 
         // Удаление книги
         window.deleteBook = (id) => {
-            fetch(`/books/delete/${id}`, { method: 'DELETE' })
+            fetch(`/book/delete/${id}`, { method: 'DELETE' })
                 .then(() => loadBooks());
         };
 
@@ -192,7 +196,7 @@
             const author = document.querySelector(`.edit-author[data-id='${id}']`).value;
             const description = document.querySelector(`.edit-description[data-id='${id}']`).value;
 
-            fetch(`/books/update/${id}`, {
+            fetch(`/book/update/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, author, description })
