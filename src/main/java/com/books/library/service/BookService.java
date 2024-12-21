@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 public class BookService {
 
-    @Autowired
+
     private BookRepository bookRepository;
 
     @Autowired
@@ -25,7 +25,7 @@ public class BookService {
      * @return Список доступных книг.
      */
     public List<Book> getAllAvailableBooks() {
-        return bookRepository.findByAvailableTrue();
+        return bookRepository.findAllByAvailable(true);
     }
 
     /**
@@ -43,8 +43,8 @@ public class BookService {
     }
 
     public Book saveBook(Book book) {
-        bookRepository.save(book);
-        return book;
+        book.setAvailable(true);
+        return bookRepository.save(book);
     }
 
     public Book updateBook(Long id, Book book) {
@@ -52,16 +52,9 @@ public class BookService {
         existingBook.setTitle(book.getTitle());
         existingBook.setAuthor(book.getAuthor());
         existingBook.setDescription(book.getDescription());
-        bookRepository.save(existingBook);
-        return existingBook;
+        existingBook.setAvailable(book.isAvailable());
+        return bookRepository.save(existingBook);
     }
-
-
-
-//    public Book updateBook(Long id, Book book) {
-//        bookRepository.save(book);
-//        return book;
-//    }
 
     public void deleteBook(Long bookId) {
         bookRepository.deleteById(bookId);

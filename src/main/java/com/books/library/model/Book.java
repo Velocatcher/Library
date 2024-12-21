@@ -8,8 +8,18 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "books")
+//@Table(name = "books")
 public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String title;
+    private String author;
+    private String description;
+    private boolean available;
+
+
     public Long getId() {
         return id;
     }
@@ -42,34 +52,38 @@ public class Book {
         this.description = description;
     }
 
-    public int getCopiesAvailable() {
-        return copiesAvailable;
-    }
-
-    public void setCopiesAvailable(int copiesAvailable) {
-        this.copiesAvailable = copiesAvailable;
-    }
+//    public int getCopiesAvailable() {
+//        return copiesAvailable;
+//    }
+//
+//    public void setCopiesAvailable(int copiesAvailable) {
+//        this.copiesAvailable = copiesAvailable;
+//    }
 
     public Book() {
     }
 
-    public Book(String title, String author, String description, int copiesAvailable, boolean available) {
+    public Book(String title, String author, String description, boolean available) {
 
         this.title = title;
         this.author = author;
         this.description = description;
-        this.copiesAvailable = copiesAvailable;
+//        this.copiesAvailable = copiesAvailable;
         this.available = available;
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    private String title;
-    private String author;
-    private String description;
-    private int copiesAvailable;
-    private boolean available; // поле для отслеживания доступности книги
+
+//    private int copiesAvailable;
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
+     // поле для отслеживания доступности книги
 }
     

@@ -29,10 +29,16 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/", "/index", "/register", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/order/home", "/order/orderBook", "/order/returnBook", "/order/extendLoan").hasRole("USER")
+                        .requestMatchers("/order/**").hasRole("USER")
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
+//                .formLogin((form) -> form
+//                        .loginPage("/login")
+//                        .defaultSuccessUrl("/order/home", true) //  используется правильный путь
+//                        .permitAll()
+//                )
+
                 .formLogin((form) -> form
                         .loginPage("/login")
                         .successHandler(customAuthenticationSuccessHandler()) // Указан кастомный обработчик
@@ -52,28 +58,44 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
     @Bean
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
-        return new AuthenticationSuccessHandler() {
-            @Override
-            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                                org.springframework.security.core.Authentication authentication)
-                    throws IOException, ServletException {
-                authentication.getAuthorities().forEach(authority -> {
-                    try {
-                        if (authority.getAuthority().equals("ROLE_ADMIN")) {
-                            response.sendRedirect("/admin");
-                            return;
-                        } else if (authority.getAuthority().equals("ROLE_USER")) {
-                            response.sendRedirect("/order/home");
-                            return;
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+        return (request, response, authentication) -> {
+            authentication.getAuthorities().forEach(authority -> {
+                try {
+                    if (authority.getAuthority().equals("ROLE_ADMIN")) {
+                        response.sendRedirect("/admin");
+                    } else if (authority.getAuthority().equals("ROLE_USER")) {
+                        response.sendRedirect("/order/home");
                     }
-                });
-            }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         };
     }
 }
+//    @Bean
+//    public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+//        return new AuthenticationSuccessHandler() {
+//            @Override
+//            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+//                                                org.springframework.security.core.Authentication authentication)
+//                    throws IOException, ServletException {
+//                authentication.getAuthorities().forEach(authority -> {
+//                    try {
+//                        if (authority.getAuthority().equals("ROLE_ADMIN")) {
+//                            response.sendRedirect("/admin");
+//                            return;
+//                        } else if (authority.getAuthority().equals("ROLE_USER")) {
+//                            response.sendRedirect("/order/home");
+//                            return;
+//                        }
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                });
+//            }
+//        };
+//    }
+//}

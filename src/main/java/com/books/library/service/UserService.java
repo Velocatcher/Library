@@ -23,18 +23,40 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Загрузка пользователя по имени для Spring Security
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> optionalUser = Optional.ofNullable(userRepository.findByUsername(username));
-        User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+//        Optional<Optional<User>> optionalUser = Optional.ofNullable(userRepository.findByUsername(username));
+//        Optional<User> user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
+        // Преобразуем пользователя из базы данных в объект UserDetails для Spring Security
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword()) // пароль уже зашифрован
-                .roles(user.getRole().name())
+                .roles(user.getRole().name()) // преобразование роли Role.USER в "USER"
                 .build();
     }
 
+    /**
+     * Метод для поиска пользователя по имени пользователя
+     */
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalStateException("Пользователь с именем " + username + " не найден."));
+    }
+//    // Метод для поиска пользователя по имени пользователя
+//    public User findByUsername(String username) {
+//        Optional<User> userOptional = userRepository.findByUsername(username);
+//        if (userOptional.isPresent()) {
+//            return userOptional.get();
+//        } else {
+//            throw new IllegalStateException("Пользователь с именем " + username + " не найден.");
+//        }
+//    }
     public String saveUser(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new IllegalArgumentException("User with this username already exists.");
@@ -43,7 +65,7 @@ public class UserService implements UserDetailsService {
         if (!"admin".equals(user.getUsername())) {
             user.setRole(Role.USER);
         }
-// Сохраняем исходный пароль перед шифрованием
+        // Сохраняем исходный пароль перед шифрованием
         String rawPassword = user.getPassword();
 
         // Шифруем пароль перед сохранением
@@ -54,10 +76,6 @@ public class UserService implements UserDetailsService {
         // Возвращаем сырой пароль, чтобы он мог быть использован в UserController
         return rawPassword;
 
-//        // Шифруем пароль перед сохранением
-//        String encryptedPassword = passwordEncoder.encode(user.getPassword());
-//        user.setPassword(encryptedPassword);
-//        userRepository.save(user);
     }
 
     public User getUserById(Long id) {

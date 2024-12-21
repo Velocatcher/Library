@@ -5,13 +5,17 @@ import com.books.library.model.BookOrder;
 import com.books.library.model.User;
 import com.books.library.service.BookService;
 import com.books.library.service.OrderService;
+import com.books.library.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/order")
@@ -19,11 +23,12 @@ public class OrderController {
 
     private final OrderService orderService;
     private final BookService bookService;
-
+    private final UserService userService;
     @Autowired
-    public OrderController(OrderService orderService, BookService bookService) {
+    public OrderController(OrderService orderService, BookService bookService, UserService userService) {
         this.orderService = orderService;
         this.bookService = bookService;
+        this.userService = userService;
     }
 
     // Главная страница пользователя
@@ -31,6 +36,8 @@ public class OrderController {
     public String homePage(@AuthenticationPrincipal User user, Model model) {
         List<BookOrder> userOrders = orderService.getOrdersByUser(user);
         List<Book> availableBooks = bookService.getAllAvailableBooks();
+        // Логируем размер списка availableBooks
+        System.out.println("Количество доступных книг: " + availableBooks.size());
 
         model.addAttribute("userOrders", userOrders);
         model.addAttribute("availableBooks", availableBooks);
@@ -45,11 +52,29 @@ public class OrderController {
     }
 
     // Заказ книги
+
     @PostMapping("/orderBook")
-    public String orderBook(@RequestParam("bookId") Long bookId, @AuthenticationPrincipal User user) {
-        orderService.createOrder(user, bookId);
+    public String orderBook(@RequestParam("bookId") Long bookId, @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser) {
+        if (currentUser == null) {
+            throw new IllegalStateException("Пользователь должен быть авторизован, чтобы заказать книгу.");
+        }
+        // Используем метод userService для получения пользователя
+        User user = userService.findByUsername(currentUser.getUsername());
+        if (user == null) {
+            throw new IllegalStateException("Пользователь не найден в системе.");
+        }
+
+        Book book = bookService.getBookById(bookId);
+        if (book == null) {
+            throw new IllegalStateException("Книга с ID " + bookId + " не найдена.");
+        }
+
+//        // Ищем реального пользователя через UserService
+//        Optional<User> user = Optional.ofNullable(userService.findByUsername(currentUser.getUsername()));
+        orderService.createOrder(user, book);
         return "redirect:/order/home";
     }
+
 
     // Возврат книги
     @PostMapping("/returnBook")

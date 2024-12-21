@@ -3,7 +3,7 @@ package com.books.library.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
+
 
 import java.time.LocalDate;
 
@@ -16,7 +16,7 @@ public class BookOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+//    @Column(name = "id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY) // Устанавливаем FetchType.LAZY для оптимизации запросов
@@ -27,15 +27,15 @@ public class BookOrder {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "order_date", nullable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+//    @Column(name = "order_date", nullable = false)
+//    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate orderDate;
 
-    @Column(name = "due_date", nullable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+//    @Column(name = "due_date", nullable = false)
+//    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dueDate;
 
-    @Column(name = "returned", nullable = false)
+//    @Column(name = "returned", nullable = false)
     private boolean returned;
 
 
@@ -98,25 +98,26 @@ public class BookOrder {
     public BookOrder(Book book, User user, LocalDate dueDate) {
         this.book = book;
         this.user = user;
+        this.orderDate = LocalDate.now();
         this.dueDate = dueDate;
         this.returned = false; // По умолчанию книга считается невозвращенной
     }
 
-    /**
-     * Метод для установки ID книги.
-     * Используется, когда необходимо указать только ID книги, а не сам объект.
-     */
-    public void setBookId(Long bookId) {
-        this.book = new Book();
-        this.book.setId(bookId);
-    }
+//    /**
+//     * Метод для установки ID книги.
+//     * Используется, когда необходимо указать только ID книги, а не сам объект.
+//     */
+//    public void setBookId(Long bookId) {
+//        this.book = new Book();
+//        this.book.setId(bookId);
+//    }
 
-    /**
-     * Метод для установки ID пользователя.
-     * Используется, когда необходимо указать только ID пользователя, а не сам объект.
-     */
-    public void setUserId(Long userId) {
-        this.user = new User();
-        this.user.setId(userId);
-    }
+//    /**
+//     * Метод для установки ID пользователя.
+//     * Используется, когда необходимо указать только ID пользователя, а не сам объект.
+//     */
+//    public void setUserId(Long userId) {
+//        this.user = new User();
+//        this.user.setId(userId);
+//    }
 }
