@@ -14,7 +14,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
      * @return Список доступных книг.
      */
     List<Book> findAllByAvailable(boolean available);
-//    List<Book> findByAvailableTrue();
+
 }
 
     

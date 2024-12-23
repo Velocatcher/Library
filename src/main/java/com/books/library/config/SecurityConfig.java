@@ -9,10 +9,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
 
 @Configuration
 public class SecurityConfig {
@@ -33,12 +30,6 @@ public class SecurityConfig {
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-//                .formLogin((form) -> form
-//                        .loginPage("/login")
-//                        .defaultSuccessUrl("/order/home", true) //  используется правильный путь
-//                        .permitAll()
-//                )
-
                 .formLogin((form) -> form
                         .loginPage("/login")
                         .successHandler(customAuthenticationSuccessHandler()) // Указан кастомный обработчик
@@ -75,27 +66,3 @@ public class SecurityConfig {
         };
     }
 }
-//    @Bean
-//    public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
-//        return new AuthenticationSuccessHandler() {
-//            @Override
-//            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-//                                                org.springframework.security.core.Authentication authentication)
-//                    throws IOException, ServletException {
-//                authentication.getAuthorities().forEach(authority -> {
-//                    try {
-//                        if (authority.getAuthority().equals("ROLE_ADMIN")) {
-//                            response.sendRedirect("/admin");
-//                            return;
-//                        } else if (authority.getAuthority().equals("ROLE_USER")) {
-//                            response.sendRedirect("/order/home");
-//                            return;
-//                        }
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                });
-//            }
-//        };
-//    }
-//}

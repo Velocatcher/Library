@@ -15,7 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+
 
 @Controller
 @RequestMapping("/order")
@@ -58,20 +58,6 @@ public class OrderController {
         return "home";
     }
 
-//    @GetMapping("/home")
-//    public String homePage(@AuthenticationPrincipal User user, Model model) {
-////        if (user == null) {
-////            throw new IllegalStateException("Пользователь должен быть авторизован.");
-////        }
-//        List<BookOrder> userOrders = orderService.getOrdersByUser(user);
-//        List<Book> availableBooks = bookService.getAllAvailableBooks();
-//        // Логируем размер списка availableBooks
-//        System.out.println("Количество доступных книг: " + availableBooks.size());
-//
-//        model.addAttribute("userOrders", userOrders);
-//        model.addAttribute("availableBooks", availableBooks);
-//        return "home";
-//    }
 
     // Получение списка всех заказов пользователя
     @GetMapping("/user-orders")

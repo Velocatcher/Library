@@ -28,14 +28,6 @@ public class BookOrder {
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
-//    @ManyToOne(fetch = FetchType.LAZY) // Устанавливаем FetchType.LAZY для оптимизации запросов
-//    @JoinColumn(name = "book_id", nullable = false)
-//    private Book book;
-//
-//    @ManyToOne(fetch = FetchType.LAZY) // Устанавливаем FetchType.LAZY для оптимизации запросов
-//    @JoinColumn(name = "user_id", nullable = false)
-//    private User user;
-
 //    @Column(name = "order_date", nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate orderDate;
@@ -113,21 +105,4 @@ public class BookOrder {
         this.returned = false; // По умолчанию книга считается невозвращенной
     }
 
-//    /**
-//     * Метод для установки ID книги.
-//     * Используется, когда необходимо указать только ID книги, а не сам объект.
-//     */
-//    public void setBookId(Long bookId) {
-//        this.book = new Book();
-//        this.book.setId(bookId);
-//    }
-
-//    /**
-//     * Метод для установки ID пользователя.
-//     * Используется, когда необходимо указать только ID пользователя, а не сам объект.
-//     */
-//    public void setUserId(Long userId) {
-//        this.user = new User();
-//        this.user.setId(userId);
-//    }
 }
