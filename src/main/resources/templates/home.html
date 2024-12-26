@@ -79,6 +79,13 @@
             z-index: 1;
         }
 
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
         button {
             background-color: #007bff;
             color: white;
@@ -92,6 +99,11 @@
 
         button:hover {
             background-color: #0056b3;
+        }
+
+        .disabled-button {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -108,9 +120,8 @@
     <h2>Ваши заказы</h2>
     <div class="scrollable">
         <table id="userOrdersTable">
-            <thead>
+            <thead class="table-header">
             <tr>
-                <th>ID заказа</th>
                 <th>Книга</th>
                 <th>Дата заказа</th>
                 <th>Срок возврата</th>
@@ -120,16 +131,31 @@
             </thead>
             <tbody>
             <tr th:each="order : ${userOrders}">
-                <td th:text="${order.id}"></td>
+
                 <td th:text="${order.book.title}"></td>
                 <td th:text="${order.orderDate}"></td>
                 <td th:text="${order.dueDate}"></td>
                 <td th:text="${order.returned ? 'Возвращено' : 'На руках'}"></td>
                 <td>
-                    <form th:action="@{/order/returnBook}" method="post">
-                        <input type="hidden" name="orderId" th:value="${order.id}" />
-                        <button type="submit">Вернуть книгу</button>
-                    </form>
+                    <div class="action-buttons">
+                        <form th:action="@{/order/returnBook}" method="post">
+                            <input type="hidden" name="orderId" th:value="${order.id}" />
+                            <button type="submit">Вернуть книгу</button>
+                        </form>
+
+                        <form th:if="${!order.returned}" th:action="@{/order/extendLoan}" method="post">
+                            <input type="hidden" name="orderId" th:value="${order.id}" />
+                            <button type="submit">Продлить аренду</button>
+                        </form>
+
+                        <span th:if="${order.returned}" style="color: gray;">Возвращено</span>
+
+                        <form th:action="@{/reviews/book_list}" method="get">
+                            <input type="hidden" name="bookId" th:value="${order.book.id}" />
+                            <button type="submit" th:classappend="${order.hasReview} ? 'disabled-button' : ''" th:disabled="${order.hasReview}">Оставить отзыв</button>
+                        </form>
+                        <span th:if="${order.hasReview}" style="color: gray;">Отзыв оставлен</span>
+                    </div>
                 </td>
             </tr>
             </tbody>
@@ -141,7 +167,6 @@
         <table id="availableBooksTable">
             <thead class="table-header">
             <tr>
-                <th>ID</th>
                 <th>Название</th>
                 <th>Автор</th>
                 <th>Описание</th>
@@ -150,15 +175,22 @@
             </thead>
             <tbody>
             <tr th:each="book : ${availableBooks}">
-                <td th:text="${book.id}"></td>
+
                 <td th:text="${book.title}"></td>
                 <td th:text="${book.author}"></td>
                 <td th:text="${book.description}"></td>
                 <td>
-                    <form th:action="@{/order/orderBook}" method="post">
-                        <input type="hidden" name="bookId" th:value="${book.id}" />
-                        <button type="submit">Заказать книгу</button>
-                    </form>
+                    <div class="action-buttons">
+                        <form th:action="@{/order/orderBook}" method="post">
+                            <input type="hidden" name="bookId" th:value="${book.id}" />
+                            <button type="submit">Заказать книгу</button>
+                        </form>
+
+                        <form th:action="@{/reviews/bookReviews}" method="get">
+                            <input type="hidden" name="bookId" th:value="${book.id}" />
+                            <button type="submit">Смотреть отзывы</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             </tbody>
@@ -168,3 +200,204 @@
 
 </body>
 </html>
+
+
+
+
+
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <title>Домашняя страница пользователя</title>-->
+<!--    <style>-->
+<!--        body {-->
+<!--            font-family: Arial, sans-serif;-->
+<!--            background-color: #f4f4f9;-->
+<!--            margin: 0;-->
+<!--            padding: 0;-->
+<!--        }-->
+
+<!--        header {-->
+<!--            background-color: #343a40;-->
+<!--            color: #fff;-->
+<!--            padding: 1rem;-->
+<!--            text-align: center;-->
+<!--            font-size: 1.5rem;-->
+<!--            position: relative;-->
+<!--        }-->
+
+<!--        .logout-button {-->
+<!--            position: absolute;-->
+<!--            top: 10px;-->
+<!--            right: 10px;-->
+<!--            background-color: #007bff;-->
+<!--            color: white;-->
+<!--            border: none;-->
+<!--            padding: 10px 15px;-->
+<!--            border-radius: 5px;-->
+<!--            cursor: pointer;-->
+<!--            transition: background-color 0.3s;-->
+<!--        }-->
+
+<!--        .logout-button:hover {-->
+<!--            background-color: #0056b3;-->
+<!--        }-->
+
+<!--        .container {-->
+<!--            width: 90%;-->
+<!--            margin: 20px auto;-->
+<!--        }-->
+
+<!--        table {-->
+<!--            width: 100%;-->
+<!--            border-collapse: collapse;-->
+<!--            margin-bottom: 20px;-->
+<!--        }-->
+
+<!--        table th, table td {-->
+<!--            padding: 10px;-->
+<!--            text-align: center;-->
+<!--            border: 1px solid black;-->
+<!--        }-->
+
+<!--        table th {-->
+<!--            background-color: #343a40;-->
+<!--            color: white;-->
+<!--        }-->
+
+<!--        .scrollable {-->
+<!--            height: 250px;-->
+<!--            overflow-y: auto;-->
+<!--        }-->
+
+<!--        h2 {-->
+<!--            text-align: center;-->
+<!--            color: #333;-->
+<!--            padding: 15px 0;-->
+<!--            margin: 20px 0 10px 0;-->
+<!--        }-->
+
+<!--        .table-header th {-->
+<!--            position: sticky;-->
+<!--            top: 0;-->
+<!--            background-color: #4b4b4b;-->
+<!--            color: white;-->
+<!--            padding: 15px;-->
+<!--            z-index: 1;-->
+<!--        }-->
+
+<!--        .action-buttons {-->
+<!--            display: flex;-->
+<!--            flex-direction: column;-->
+<!--            align-items: center;-->
+<!--            gap: 10px;-->
+<!--        }-->
+
+<!--        button {-->
+<!--            background-color: #007bff;-->
+<!--            color: white;-->
+<!--            border: none;-->
+<!--            padding: 10px 15px;-->
+<!--            font-size: 14px;-->
+<!--            border-radius: 5px;-->
+<!--            cursor: pointer;-->
+<!--            transition: background-color 0.3s;-->
+<!--        }-->
+
+<!--        button:hover {-->
+<!--            background-color: #0056b3;-->
+<!--        }-->
+
+<!--        .disabled-button {-->
+<!--            background-color: #ccc;-->
+<!--            cursor: not-allowed;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--<header>-->
+<!--    Добро пожаловать, <span th:text="${#authentication.name}"></span>!-->
+<!--    <form th:action="@{/logout}" method="post">-->
+<!--        <button type="submit" class="logout-button">Logout</button>-->
+<!--    </form>-->
+<!--</header>-->
+
+<!--<div class="container">-->
+<!--    <h2>Ваши заказы</h2>-->
+<!--    <div class="scrollable">-->
+<!--        <table id="userOrdersTable">-->
+<!--            <thead class="table-header">-->
+<!--            <tr>-->
+<!--                <th>Книга</th>-->
+<!--                <th>Дата заказа</th>-->
+<!--                <th>Срок возврата</th>-->
+<!--                <th>Статус</th>-->
+<!--                <th>Действия</th>-->
+<!--            </tr>-->
+<!--            </thead>-->
+<!--            <tbody>-->
+<!--            <tr th:each="order : ${userOrders}">-->
+
+<!--                <td th:text="${order.book.title}"></td>-->
+<!--                <td th:text="${order.orderDate}"></td>-->
+<!--                <td th:text="${order.dueDate}"></td>-->
+<!--                <td th:text="${order.returned ? 'Возвращено' : 'На руках'}"></td>-->
+<!--                <td>-->
+<!--                    <div class="action-buttons">-->
+<!--                        <form th:action="@{/order/returnBook}" method="post">-->
+<!--                            <input type="hidden" name="orderId" th:value="${order.id}" />-->
+<!--                            <button type="submit">Вернуть книгу</button>-->
+<!--                        </form>-->
+
+<!--                        <form th:if="${!order.returned}" th:action="@{/order/extendLoan}" method="post">-->
+<!--                            <input type="hidden" name="orderId" th:value="${order.id}" />-->
+<!--                            <button type="submit">Продлить аренду</button>-->
+<!--                        </form>-->
+
+<!--                        <span th:if="${order.returned}" style="color: gray;">Возвращено</span>-->
+
+<!--                        <form th:action="@{/reviews/book_list}" method="get">-->
+<!--                            <input type="hidden" name="bookId" th:value="${order.book.id}" />-->
+<!--                            <button type="submit" th:classappend="${order.hasReview} ? 'disabled-button' : ''" th:disabled="${order.hasReview}">Оставить отзыв</button>-->
+<!--                        </form>-->
+<!--                        <span th:if="${order.hasReview}" style="color: gray;">Отзыв оставлен</span>-->
+<!--                    </div>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            </tbody>-->
+<!--        </table>-->
+<!--    </div>-->
+
+<!--    <h2>Все доступные книги</h2>-->
+<!--    <div class="scrollable">-->
+<!--        <table id="availableBooksTable">-->
+<!--            <thead class="table-header">-->
+<!--            <tr>-->
+<!--                <th>Название</th>-->
+<!--                <th>Автор</th>-->
+<!--                <th>Описание</th>-->
+<!--                <th>Действия</th>-->
+<!--            </tr>-->
+<!--            </thead>-->
+<!--            <tbody>-->
+<!--            <tr th:each="book : ${availableBooks}">-->
+
+<!--                <td th:text="${book.title}"></td>-->
+<!--                <td th:text="${book.author}"></td>-->
+<!--                <td th:text="${book.description}"></td>-->
+<!--                <td>-->
+<!--                    <form th:action="@{/order/orderBook}" method="post">-->
+<!--                        <input type="hidden" name="bookId" th:value="${book.id}" />-->
+<!--                        <button type="submit">Заказать книгу</button>-->
+<!--                    </form>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            </tbody>-->
+<!--        </table>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--</body>-->
+<!--</html>-->
+

@@ -3,6 +3,8 @@ package com.books.library.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.format.annotation.DateTimeFormat;
 
 
@@ -22,10 +24,12 @@ public class BookOrder {
 
     @ManyToOne
     @JoinColumn(name = "book_id", referencedColumnName = "id", nullable = false) // Ссылаемся на таблицу book
+    @Fetch(FetchMode.JOIN)
     private Book book;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    @Fetch(FetchMode.JOIN)
     private User user;
 
 //    @Column(name = "order_date", nullable = false)
@@ -40,6 +44,17 @@ public class BookOrder {
     @Column(nullable = false)
     private boolean returned;
 
+
+    @Transient // Поле не будет сохраняться в базе данных
+    private boolean hasReview;
+
+    public boolean isHasReview() {
+        return hasReview;
+    }
+
+    public void setHasReview(boolean hasReview) {
+        this.hasReview = hasReview;
+    }
 
     public LocalDate getOrderDate() {
         return orderDate;

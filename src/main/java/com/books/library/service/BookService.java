@@ -33,9 +33,9 @@ public class BookService {
      * @param id Идентификатор книги.
      * @return Книга.
      */
-    public Book getBookById(Long id) {
-        return bookRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Книга с идентификатором " + id + " не найдена."));
+    public Book getBookById(Long bookId) {
+        return bookRepository.findById(bookId)
+                .orElseThrow(() -> new IllegalArgumentException("Книга с идентификатором " + bookId + " не найдена."));
     }
 
     public List<Book> getAllBooks() {

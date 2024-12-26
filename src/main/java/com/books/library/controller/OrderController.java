@@ -5,6 +5,7 @@ import com.books.library.model.BookOrder;
 import com.books.library.model.User;
 import com.books.library.service.BookService;
 import com.books.library.service.OrderService;
+import com.books.library.service.ReviewService;
 import com.books.library.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 
@@ -24,11 +26,13 @@ public class OrderController {
     private final OrderService orderService;
     private final BookService bookService;
     private final UserService userService;
+    private final ReviewService reviewService;
     @Autowired
-    public OrderController(OrderService orderService, BookService bookService, UserService userService) {
+    public OrderController(OrderService orderService, BookService bookService, UserService userService, ReviewService reviewService) {
         this.orderService = orderService;
         this.bookService = bookService;
         this.userService = userService;
+        this.reviewService = reviewService;
     }
 
     // Главная страница пользователя
@@ -48,6 +52,11 @@ public class OrderController {
 
         // Получение заказов и доступных книг
         List<BookOrder> userOrders = orderService.getOrdersByUser(user);
+        for (BookOrder order : userOrders) {
+            // Проверяем, оставил ли пользователь отзыв на книгу
+            boolean reviewExists = reviewService.userReviewListed(user.getUsername(), order.getBook().getId());
+            order.setHasReview(reviewExists); // Устанавливаем свойство hasReview
+        }
         List<Book> availableBooks = bookService.getAllAvailableBooks();
 
         // Логирование
@@ -93,15 +102,41 @@ public class OrderController {
 
     // Возврат книги
     @PostMapping("/returnBook")
-    public String returnBook(@RequestParam("orderId") Long orderId) {
+    public String returnBook(@RequestParam("orderId") Long orderId, Principal principal, Model model) {
         orderService.returnBook(orderId);
-        return "redirect:/order/home";
+
+        // Обновление данных для отображения
+        User user = userService.findByUsername(principal.getName());
+        model.addAttribute("userOrders", orderService.getOrdersByUser(user));
+        model.addAttribute("availableBooks", bookService.getAllAvailableBooks());
+
+        return "home"; // Обновляем представление
     }
 
     // Продление аренды книги
     @PostMapping("/extendLoan")
-    public String extendLoan(@RequestParam("orderId") Long orderId) {
-        orderService.extendLoan(orderId);
-        return "redirect:/order/home";
+    public String extendLoan(@RequestParam Long orderId, Principal principal, Model model) {
+        User user = userService.findByUsername(principal.getName());
+        if (user == null) {
+            throw new IllegalStateException("Пользователь не найден.");
+        }
+
+        BookOrder order = orderService.getOrderById(orderId);
+        if (order == null) {
+            throw new IllegalArgumentException("Заказ не найден.");
+        }
+
+        if (order.isReturned()) {
+            model.addAttribute("errorMessage", "Нельзя продлить аренду для возвращенного заказа.");
+        } else {
+            orderService.extendLoan(orderId);
+        }
+
+        // Обновить данные для представления
+        model.addAttribute("userOrders", orderService.getOrdersByUser(user));
+        model.addAttribute("availableBooks", bookService.getAllAvailableBooks());
+
+        return "home";
     }
+
 }

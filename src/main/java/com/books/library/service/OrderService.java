@@ -81,7 +81,15 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("Заказ не найден с идентификатором: " + orderId));
         order.setReturned(true);
         orderRepository.save(order);
+
+        // Обновление статуса книги
+        Book book = order.getBook();
+        if (book != null) {
+            book.setAvailable(true);
+            bookRepository.save(book);
+        }
     }
+
 
     /**
      * Метод для продления срока аренды книги.
@@ -93,6 +101,13 @@ public class OrderService {
         order.setDueDate(order.getDueDate().plusDays(7)); // Продлить аренду на 7 дней
         orderRepository.save(order);
     }
+
+    public BookOrder getOrderById(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Заказ не найден с идентификатором: " + orderId));
+    }
+
+
 
     /**
      * Получить список всех активных заказов для пользователя.
